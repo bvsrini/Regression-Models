@@ -21,9 +21,8 @@ library(printr)
 library(MASS)
 data(mtcars)
 ```
-
 ###Exploratory analysis of the Mtcars data
-In order to understand the data better, a pairwise plots of the correlation is done to indicate if all the variables are independant regressors or there is mutual relationships between them. The pairwise plot is given in the appendix. From the figure, It appears that with the **exception of carb - Number of carburetors, qsec - accelaration for 1/4 mile time and gear - Number of forward gears** are all correlated to mpg. However there are correlations within the other independant variables also. For instance **cyl - Number of cylinders and disp - Displacement (cu.in.) are stongly correlated . Also wt - Weight (lb/1000) is also strongly correlated to displacement**. So we can expect to see a model that will have a few variables removed due to the collinearity. 
+In order to understand the data better, a pairwise plots of the correlation is done to indicate if all the variables are independant regressors or there is mutual relationships between them. The pairwise plot is given in the appendix. From the figure, It appears that with the `exception of carb - Number of carburetors, qsec - accelaration for 1/4 mile time and gear - Number of forward gears` are all correlated to mpg. However there are correlations within the other independant variables also. For instance `cyl - Number of cylinders and disp - Displacement (cu.in.) are stongly correlated . Also wt - Weight (lb/1000) is also strongly correlated to displacement`. So we can expect to see a model that will have a few variables removed due to the collinearity. 
 
 A box plot is plotted (given in appendix) to understand the relationship between  Miles per gallon (mpg) vs the transmission (am). From the plot, it appears that the manual transmission is better for mpg than automatic transmission. In order to understand the coefficients better a model needs to be constructed for the same.
 ```{r,echo=FALSE,fontsize=8,message=FALSE, warning=FALSE}
@@ -45,13 +44,9 @@ A simple most parsimonious (best) model from candidate sub-models can be be chos
   
   4.Choose Minimum AICp from candidate sub-models
   
-  5.Choose Minimum BICp from candidate sub-models
-  
-  6.Choose Minimum PRESSp from candidate sub-models
+  5.Choose Minimum PRESSp from candidate sub-models
    
-The model also can be achived with step-wise regression of variables through automated procedures like step or leaps or manually through "Forward" or "Backward" addition or elimination of variables by minimizing p-values or Maximizing the F-Values.
-
-For the mtcars data set removing unnecessary regressors through `manual backward elimination by choosing residual p-values greater than a threshold (0.05) yielded a good model than by minimizing the "VIF". The function `constr_model_func` does this job. The progressive elimination is given in the table below from the full model.
+The model also can be achived with step-wise regression of variables through automated procedures like step or leaps or manually through "Forward" or "Backward" addition or elimination of variables by minimizing p-values or Maximizing the F-Values. For the mtcars data set model was built by removing unnecessary regressors through `manual backward elimination by choosing residual p-values greater than a threshold (0.05) yielded a good model than by minimizing the "VIF"`. The function `constr_model_func` does this job. The progressive elimination is given in the table below from the full model.
 
 Full <- lm(mpg ~ cyl+disp+hp+drat+wt+qsec+vs+am+gear+carb, data = mtcars)
 ```{r,echo=TRUE,fontsize=8,cache=FALSE,eval=TRUE}
@@ -130,8 +125,7 @@ summary(mdl)$coef
 It is evident from the coefficients of the model, that holding other variables constant, automatic transmission offers   `-2.935837` mpg less than the Manual transmission.
 
 ###Diagnostic plots
-In order to understand the influence of the outliers or residuals,residual plots are generated. These are shown in the appendix. In the residual plot  residuals are seem equally distributed and the mean close to zero.(Value shown in Appendix).
-
+In order to understand the influence of the outliers or residuals,residual plots are generated. These are shown in the appendix. In the residual plot  residuals are seem equally distributed and the mean close to zero.(Value shown in Appendix). 
 There are 3 outliers point 17, 18 and 20 and one big influencer point 9. Once an subject area understanding of the data is obtained,(i.e is this outliers real or due some spurious processes), the treatment of this data can be established.
 
 ###Final Inferences based on the model
@@ -156,35 +150,6 @@ ggplot(data=mtcars,aes(y=mpg,x=as.factor(am)))+scale_fill_calc()+
      geom_boxplot(aes(fill=am),size=1,alpha=0.8)+theme_gdocs()+
      theme(legend.position="none")+labs(x="Transmission",y="Miles per gallon")
 ```
-
-```{r,echo=TRUE,fontsize=8,cache=FALSE,eval=FALSE}
-constr_model_func<-function(Full_Mod,thresh=0.05,trace=T,...){
-        Mod_init<-NULL
-        thresh_not_reached <- TRUE
-        New_Mod <- Full_Mod
-        while (thresh_not_reached) {
-                #get the max  p-value for  regressors
-                j <- summary(New_Mod)$coeff[,'Pr(>|t|)']
-                #remove intercept
-                j <- j[names(j) != '(Intercept)']
-                k <- max(j)
-                                               
-                if (k < thresh) {break}
-                
-                # else remove the regressor from the model
-                remove_regressor <- names(which.max(summary(New_Mod)$coeff[,'Pr(>|t|)']))
-                cat(paste("Removed",remove_regressor,"With Pr(>|t|) value",round(k,4)),'\n')
-                flush.console()       
-                # construct new model
-                form <- NULL
-                form <- paste('. ~ . -', remove_regressor)
-             New_Mod <- update(New_Mod,  form)
-        }
-        return (New_Mod)
-}
-```
-
-
 
 #### Fig 2: Mtcars- Correlation between variables
 ```{r,echo=FALSE,fontsize=8,message=FALSE,fig.height= 13,fig.width= 10,warning=FALSE,}
@@ -211,3 +176,5 @@ confint(mdl)
 sprintf(paste("Mean of the residuals from the model",mean(sum(resid(mdl)))))
 ```
 
+#### GitHub Location 
+[Regression Analysis of Mtcars for best MPG outcome](https://github.com/bvsrini/Regression-Models.git)
